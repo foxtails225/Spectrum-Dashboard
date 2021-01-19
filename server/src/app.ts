@@ -1,7 +1,6 @@
 import 'dotenv/config';
-import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import express, { Express, Request, Response } from 'express';
+import express, { Express, Request, Response, Router } from 'express';
 import helmet from 'helmet';
 import hpp from 'hpp';
 import morgan from 'morgan';
@@ -27,21 +26,21 @@ if (env === 'production') {
 }
 
 app.use(hpp());
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('./build'));
-app.use(cookieParser());
 
-routes.forEach(route => {
+routes.forEach((route: Router) => {
   app.use('/api/', route);
 });
 
-app.use(errorMiddleware);
 app.get('/', (req: Request, res: Response) => {
-  res.sendFile(path.join('./build/' + 'index.html'));
+  res.sendFile(path.resolve('./build/' + 'index.html'));
 });
+
+app.use(errorMiddleware);
 
 app.listen(port, () => {
   logger.info(`App listening on the port ${port}`);

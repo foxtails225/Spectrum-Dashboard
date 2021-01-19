@@ -1,7 +1,7 @@
 {
   "name": "spectrum-dashboard",
   "version": "0.0.0",
-  "description": "TypeScript + Express API Server",
+  "description": "Spectrum Dashboard",
   "author": "",
   "license": "ISC",
   "scripts": {
@@ -18,13 +18,12 @@
     "class-validator": "^0.12.2",
     "compression": "^1.7.4",
     "concurrently": "^5.3.0",
-    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
     "envalid": "^6.0.2",
     "express": "^4.17.1",
-    "helmet": "^4.3.1",
+    "helmet": "^4.4.1",
     "hpp": "^0.2.3",
     "jest": "^26.6.3",
     "jsonwebtoken": "^8.5.1",
@@ -38,7 +37,6 @@
   "devDependencies": {
     "@types/bcrypt": "^3.0.0",
     "@types/compression": "^1.7.0",
-    "@types/cookie-parser": "^1.4.2",
     "@types/cors": "^2.8.9",
     "@types/dotenv": "^8.2.0",
     "@types/express": "^4.17.9",
