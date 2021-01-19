@@ -3,7 +3,14 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import * as XLSX from 'xlsx';
 import _ from 'underscore';
-import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
+import {
+  Grid,
+  Box,
+  Typography,
+  makeStyles,
+  Theme,
+  colors
+} from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
 
 interface SpectrumProps {
@@ -96,6 +103,13 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   announce: {
     marginTop: theme.spacing(1)
+  },
+  box: {
+    width: '100%',
+    minHeight: theme.spacing(30),
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'flex'
   }
 }));
 
@@ -154,7 +168,7 @@ const Spectrum: FC<SpectrumProps> = ({
       } else {
         setSource([]);
         setTotalPage(0);
-        setPage(1)
+        setPage(1);
         onScope('');
         onContent('');
       }
@@ -171,7 +185,7 @@ const Spectrum: FC<SpectrumProps> = ({
         page < totalPage
           ? source[page * amount - 1]
           : source[totalPage * amount - 1];
-          
+
       if (pointF && Object.keys(pointF).includes('end')) {
         const len = Math.abs(pointS.start - pointF.end);
         let data = Object.values(source).filter(
@@ -205,6 +219,18 @@ const Spectrum: FC<SpectrumProps> = ({
         style={{ position: 'relative' }}
         className={clsx(className, classes.root)}
       >
+        {Object.keys(dataSource).length === 0 && (
+          <Box
+            border={1}
+            borderColor={colors.blue[200]}
+            className={classes.box}
+            textAlign="center"
+          >
+            <Typography variant="body2" color="textSecondary">
+              No Band Data Entered Yet.
+            </Typography>
+          </Box>
+        )}
         {Object.keys(dataSource).length > 0 &&
           Object.values(dataSource).map((el, idx: number) => (
             <Grid
