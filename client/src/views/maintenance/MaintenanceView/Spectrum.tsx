@@ -4,7 +4,7 @@ import clsx from 'clsx';
 import * as XLSX from 'xlsx';
 import _ from 'underscore';
 import { Grid, Typography, makeStyles, Theme } from '@material-ui/core';
-import Pagination from '@material-ui/lab/Pagination';
+import { Pagination } from '@material-ui/lab';
 
 interface SpectrumProps {
   className?: string;
@@ -20,7 +20,7 @@ interface Entry {
   chart_type: string;
   remark: string;
   color: string;
-  Hex: string;
+  hex: string;
   start: number;
   end: number;
   vertical: boolean;
@@ -43,14 +43,14 @@ const getStyle = (dt: Entry, length: number) => {
   if (dt.vertical) {
     value = {
       writingMode: 'vertical-rl',
-      backgroundColor: dt.Hex,
+      backgroundColor: dt.hex,
       minHeight: len,
       maxHeight: len,
       transform: 'rotate(-180deg)'
     };
   } else {
     value = {
-      backgroundColor: dt.Hex,
+      backgroundColor: dt.hex,
       minHeight: len,
       maxHeight: len,
       textAlign: 'center'
@@ -122,36 +122,42 @@ const Spectrum: FC<SpectrumProps> = ({
     req.onload = (e: ProgressEvent<EventTarget>) => {
       const data = new Uint8Array(req.response);
       const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet: any = XLSX.utils.sheet_to_json(
-        workbook.Sheets[workbook.SheetNames[0]],
-        { header: 1 }
-      );
+      const worksheet: any = XLSX.utils.sheet_to_json(workbook.Sheets[menu], {
+        header: 1
+      });
       let sheetList = [];
       let result = [];
 
-      worksheet.forEach((el: any, idx: number) => {
-        if (idx > 0) sheetList.push(_.object(worksheet[0], el));
-      });
+      if (Object.keys(worksheet).length > 2) {
+        worksheet.forEach((el: any, idx: number) => {
+          if (idx > 0) sheetList.push(_.object(worksheet[0], el));
+        });
 
-      sheetList.forEach((item: Entry) => {
-        const data = sheetList.filter(el => item.master === el.master);
-        const count = _.filter(result, el => item.master === el.master);
+        sheetList.forEach((item: Entry) => {
+          const data = sheetList.filter(el => item.master === el.master);
+          const count = _.filter(result, el => item.master === el.master);
 
-        if (count.length < 1 && item.master) {
-          result.push({
-            master: item.master,
-            start: item.start,
-            end: item.end,
-            data: data,
-            vertical: item.vertical
-          });
-        }
-      });
-
-      setSource(result);
-      setTotalPage(Object.keys(result).length / amount);
-      onScope(result[0].data[0].chart_type);
-      onContent(result[0].data[0].content);
+          if (count.length < 1 && item.master) {
+            result.push({
+              master: item.master,
+              start: item.start,
+              end: item.end,
+              data: data,
+              vertical: item.vertical
+            });
+          }
+        });
+        setSource(result);
+        setTotalPage(Object.keys(result).length / amount);
+        onScope(result[0].data[0].chart_type);
+        onContent(result[0].data[0].content);
+      } else {
+        setSource([]);
+        setTotalPage(0);
+        setPage(1)
+        onScope('');
+        onContent('');
+      }
     };
 
     req.send();
@@ -160,18 +166,26 @@ const Spectrum: FC<SpectrumProps> = ({
 
   useEffect(() => {
     if (Object.keys(source).length > 0) {
-      const pointX = source[(page - 1) * amount];
-      const pointY = source[page * amount - 1];
-      const len = Math.abs(pointX.start - pointY.end);
-
-      let data = Object.values(source).filter(
-        (item: Entry) =>
-          item.master > (page - 1) * amount && item.master <= page * amount
-      );
-      setLength(len);
-      setDataSource(data);
+      const pointS = source[(page - 1) * amount];
+      const pointF =
+        page < totalPage
+          ? source[page * amount - 1]
+          : source[totalPage * amount - 1];
+          
+      if (pointF && Object.keys(pointF).includes('end')) {
+        const len = Math.abs(pointS.start - pointF.end);
+        let data = Object.values(source).filter(
+          (item: Entry) =>
+            item.master > (page - 1) * amount && item.master <= page * amount
+        );
+        setLength(len);
+        setDataSource(data);
+      }
+    } else {
+      setLength(0);
+      setDataSource([]);
     }
-  }, [page, source]);
+  }, [page, source, totalPage]);
 
   const handleClick = (type: string, content: string): void => {
     onScope(type);
@@ -192,7 +206,7 @@ const Spectrum: FC<SpectrumProps> = ({
         className={clsx(className, classes.root)}
       >
         {Object.keys(dataSource).length > 0 &&
-          Object.values(dataSource).map((el, idx) => (
+          Object.values(dataSource).map((el, idx: number) => (
             <Grid
               item
               key={el.master}
@@ -202,12 +216,12 @@ const Spectrum: FC<SpectrumProps> = ({
               data-end={idx === amount - 1 ? el.end : ''}
             >
               <Grid container alignItems="center" justify="center">
-                {el.data.map((dt: Entry) => (
+                {el.data.map((dt: Entry, index: number) => (
                   <Grid
                     item
                     md={12}
                     id={getKey(dt.chart_type)}
-                    key={getKey(dt.service)}
+                    key={`${getKey(dt.service)}-${idx}-${index}`}
                     onClick={() => handleClick(dt.chart_type, dt.content)}
                     style={getStyle(dt, el.data.length)}
                     className={clsx(
@@ -232,24 +246,28 @@ const Spectrum: FC<SpectrumProps> = ({
       <Grid
         container
         alignItems="center"
-        justify="center"
         spacing={3}
         className={classes.announce}
       >
-        <Grid item md={10}>
+        <Grid item md={9}>
           <Typography variant="body1">
             This chart will only work with 1024 x 768. We recommend full screen
             mode.
           </Typography>
         </Grid>
-        <Grid item md={2}>
-          <Pagination
-            count={totalPage}
-            defaultPage={1}
-            variant="outlined"
-            shape="rounded"
-            onChange={handleChangePage}
-          />
+        <Grid item md={3}>
+          <Grid container justify="flex-end">
+            <Grid item md={12}>
+              <Pagination
+                count={Math.ceil(totalPage)}
+                page={page}
+                defaultPage={1}
+                variant="outlined"
+                shape="rounded"
+                onChange={handleChangePage}
+              />
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
     </>

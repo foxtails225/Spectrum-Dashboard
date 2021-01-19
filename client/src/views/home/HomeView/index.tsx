@@ -39,12 +39,14 @@ const Header: FC = () => {
 };
 
 const HomeView: FC = () => {
-  const [menu, setMenu] = useState(options[4].name);
+  const [menu, setMenu] = useState(options[3].name);
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('');
   const classes = useStyles();
 
-  const handleScope = (value: string): void => setScope(value);
+  const handleScope = (value: string): void => {
+    setScope(value);
+  };
 
   const handleMenu = (event: ChangeEvent): void => {
     //@ts-ignore
@@ -54,7 +56,7 @@ const HomeView: FC = () => {
   const handleContent = (value: string): void => {
     setContent(value);
   };
-
+  
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="lg">

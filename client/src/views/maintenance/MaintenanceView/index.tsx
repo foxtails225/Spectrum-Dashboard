@@ -39,7 +39,7 @@ const Header: FC = () => {
 };
 
 const MaintenanceView: FC = () => {
-  const [menu, setMenu] = useState(options[4].name);
+  const [menu, setMenu] = useState(options[3].name);
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('');
   const classes = useStyles();

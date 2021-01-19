@@ -9,13 +9,11 @@ import {
   StylesProvider,
 } from '@material-ui/core';
 import routes, { renderRoutes } from 'src/routes';
-import { BASE_URL } from './constants';
 
 const jss = create({ plugins: [...jssPreset().plugins] });
 const history = createBrowserHistory();
 
 const App: FC = () => {
-  console.log(BASE_URL)
   return (
       <StylesProvider jss={jss}>
           <SnackbarProvider

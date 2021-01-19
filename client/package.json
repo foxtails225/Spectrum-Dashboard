@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint ./src",
     "start": "set PORT=8008 && react-scripts start",
-    "build": "cross-env NODE_ENV=production react-scripts build && cd ../server && rmdir /S build && cd ../client && move build ../server",
+    "build": "react-scripts build && cd ../server && rmdir /S build && cd ../client && move build ../server",
     "build.ubuntu": "cross-env NODE_ENV=production react-scripts build && cd ../server && sudo rm -r build && cd ../client && sudo mv build ../server",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
