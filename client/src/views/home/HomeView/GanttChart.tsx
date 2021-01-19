@@ -1,7 +1,7 @@
 import React, { useState, useEffect, FC } from 'react';
 import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
-import * as XLSX from 'xlsx';
+import * as xlsx from 'xlsx';
 import _ from 'underscore';
 import {
   Grid,
@@ -55,11 +55,11 @@ const GanttChart: FC<GanttChartProps> = ({ scope }) => {
 
     req.onload = function(e) {
       const data = new Uint8Array(req.response);
-      const workbook = XLSX.read(data, { type: 'array' });
+      const workbook = xlsx.read(data, { type: 'array' });
 
       workbook.SheetNames.forEach(item => {
         let worksheetList = [];
-        let worksheet: any = XLSX.utils.sheet_to_json(workbook.Sheets[item], {
+        let worksheet: any = xlsx.utils.sheet_to_json(workbook.Sheets[item], {
           header: 1
         });
         sheetList[item] = [];

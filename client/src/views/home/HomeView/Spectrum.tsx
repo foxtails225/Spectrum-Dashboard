@@ -9,29 +9,18 @@ import {
   Typography,
   makeStyles,
   Theme,
-  colors
+  colors,
+  Tooltip
 } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
+import { Entry } from 'src/types/entry';
 
 interface SpectrumProps {
   className?: string;
   scope: string;
-  menu: string;
+  band: string;
   onScope: (param: string) => void;
   onContent: (param: string) => void;
-}
-
-interface Entry {
-  master: number;
-  service: string;
-  chart_type: string;
-  remark: string;
-  color: string;
-  hex: string;
-  start: number;
-  end: number;
-  vertical: boolean;
-  content: string;
 }
 
 const calWidth = (start: number, end: number, length: number) => {
@@ -86,6 +75,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   block: {
     display: 'flex',
     flexDirection: 'column',
+    textAlign: 'center',
     justifyContent: 'center',
     alignItems: 'center',
     border: '1px solid #000',
@@ -115,7 +105,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 
 const Spectrum: FC<SpectrumProps> = ({
   className,
-  menu,
+  band,
   scope,
   onScope,
   onContent
@@ -136,7 +126,7 @@ const Spectrum: FC<SpectrumProps> = ({
     req.onload = (e: ProgressEvent<EventTarget>) => {
       const data = new Uint8Array(req.response);
       const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet: any = XLSX.utils.sheet_to_json(workbook.Sheets[menu], {
+      const worksheet: any = XLSX.utils.sheet_to_json(workbook.Sheets[band], {
         header: 1
       });
       let sheetList = [];
@@ -176,7 +166,7 @@ const Spectrum: FC<SpectrumProps> = ({
 
     req.send();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [menu]);
+  }, [band]);
 
   useEffect(() => {
     if (Object.keys(source).length > 0) {
@@ -243,27 +233,37 @@ const Spectrum: FC<SpectrumProps> = ({
             >
               <Grid container alignItems="center" justify="center">
                 {el.data.map((dt: Entry, index: number) => (
-                  <Grid
-                    item
-                    md={12}
-                    id={getKey(dt.chart_type)}
+                  <Tooltip
                     key={`${getKey(dt.service)}-${idx}-${index}`}
-                    onClick={() => handleClick(dt.chart_type, dt.content)}
-                    style={getStyle(dt, el.data.length)}
-                    className={clsx(
-                      classes.block,
-                      dt.chart_type === scope && classes.scoped
-                    )}
+                    title={dt.service}
+                    disableFocusListener={!dt.tooltip}
+                    disableHoverListener={!dt.tooltip}
+                    arrow
                   >
-                    <Typography className={classes.service}>
-                      {dt.service}
-                    </Typography>
-                    {dt.remark !== '' && (
-                      <Typography className={classes.remark}>
-                        {dt.remark}
-                      </Typography>
-                    )}
-                  </Grid>
+                    <Grid
+                      item
+                      md={12}
+                      onClick={() => handleClick(dt.chart_type, dt.content)}
+                      style={getStyle(dt, el.data.length)}
+                      className={clsx(
+                        classes.block,
+                        dt.chart_type === scope && classes.scoped
+                      )}
+                    >
+                      {!dt.tooltip && (
+                        <>
+                          <Typography className={classes.service}>
+                            {dt.service}
+                          </Typography>
+                          {dt.remark !== '' && (
+                            <Typography className={classes.remark}>
+                              {dt.remark}
+                            </Typography>
+                          )}
+                        </>
+                      )}
+                    </Grid>
+                  </Tooltip>
                 ))}
               </Grid>
             </Grid>
@@ -303,7 +303,7 @@ const Spectrum: FC<SpectrumProps> = ({
 Spectrum.propTypes = {
   className: PropTypes.string,
   scope: PropTypes.string.isRequired,
-  menu: PropTypes.string.isRequired,
+  band: PropTypes.string.isRequired,
   onScope: PropTypes.func,
   onContent: PropTypes.func
 };

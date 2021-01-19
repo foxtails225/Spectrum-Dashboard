@@ -11,12 +11,22 @@ import {
   Theme,
   colors
 } from '@material-ui/core';
-import { options } from './options';
 import GanttChart from './GanttChart';
+import SystemMenus from './SystemMenus';
 import BandMenus from './BandMenus';
 import Spectrum from './Spectrum';
 import Content from './Content';
 import Alert from './Alert';
+
+interface Status {
+  system: string;
+  band: string;
+}
+
+const initialStatus = {
+  system: 'none',
+  band: 'none'
+};
 
 const useStyles = makeStyles((theme: Theme) => ({
   root: {
@@ -39,7 +49,7 @@ const Header: FC = () => {
 };
 
 const HomeView: FC = () => {
-  const [menu, setMenu] = useState(options[3].name);
+  const [status, setStatus] = useState<Status>(initialStatus);
   const [content, setContent] = useState('');
   const [scope, setScope] = useState('');
   const classes = useStyles();
@@ -48,15 +58,16 @@ const HomeView: FC = () => {
     setScope(value);
   };
 
-  const handleMenu = (event: ChangeEvent): void => {
+  const handleChange = (event: ChangeEvent): void => {
     //@ts-ignore
-    setMenu(event.target.value);
+    const { name, value } = event.target;
+    setStatus(prevState => ({ ...prevState, [name]: value }));
   };
 
   const handleContent = (value: string): void => {
     setContent(value);
   };
-  
+
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="lg">
@@ -66,12 +77,15 @@ const HomeView: FC = () => {
           <CardContent>
             <Grid container alignItems="center" spacing={3}>
               <Grid item md={3}>
-                <BandMenus menu={menu} onMenu={handleMenu} />
+                <SystemMenus system={status.system} onChange={handleChange} />
+              </Grid>
+              <Grid item md={3}>
+                <BandMenus status={status} onChange={handleChange} />
               </Grid>
               <Grid item md={12}>
                 <Spectrum
                   scope={scope}
-                  menu={menu}
+                  band={status.band}
                   onScope={handleScope}
                   onContent={handleContent}
                 />

@@ -1,19 +1,17 @@
-import React, { FC } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Select,
-  MenuItem,
-  makeStyles,
-  Theme,
-  colors
-} from '@material-ui/core';
-import { options } from './options';
+import * as xlsx from 'xlsx';
+import { Select, MenuItem, makeStyles, Theme, colors } from '@material-ui/core';
 import clsx from 'clsx';
 
+interface Status {
+  system: string;
+  band: string;
+}
 interface BandMenusProps {
   className?: string;
-  menu: string;
-  onMenu: (param: any) => void;
+  status: Status;
+  onChange: (param: any) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -26,23 +24,46 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const BandMenus: FC<BandMenusProps> = ({ className, menu, onMenu }) => {
+const BandMenus: FC<BandMenusProps> = ({ className, status, onChange }) => {
+  const [bands, setBands] = useState<string[]>([]);
   const classes = useStyles();
+  
+  useEffect(() => {
+    let result: string[] = [];
+    let req = new XMLHttpRequest();
+    req.open('GET', 'static/excel/systems.xlsx', true);
+    req.responseType = 'arraybuffer';
+
+    req.onload = (e: ProgressEvent<EventTarget>) => {
+      const data = new Uint8Array(req.response);
+      const workbook = xlsx.read(data, { type: 'array' });
+      const sdata = workbook.Sheets[workbook.SheetNames[0]];
+      const worksheet: any = xlsx.utils.sheet_to_json(sdata, { header: 1 });
+
+      worksheet.forEach((el: any) => {
+        if (el[0] === status.system && !result.includes(el[1]))
+          result.push(el[1]);
+      });
+      setBands(result);
+    };
+
+    req.send();
+  }, [status.system]);
 
   return (
     <Select
-      name=""
-      value={menu}
-      onChange={onMenu}
+      name="band"
+      value={status.band}
+      onChange={onChange}
       className={clsx(classes.root, className)}
       fullWidth
     >
       <MenuItem value="none" className={classes.default} disabled>
         Select Frequency Band
       </MenuItem>
-      {options.map(item => (
-        <MenuItem value={item.name} key={item.name}>
-          {item.label}
+      {bands.map(item => (
+        <MenuItem value={item} key={item}>
+          {item}
         </MenuItem>
       ))}
     </Select>
@@ -51,8 +72,7 @@ const BandMenus: FC<BandMenusProps> = ({ className, menu, onMenu }) => {
 
 BandMenus.propTypes = {
   className: PropTypes.string,
-  menu: PropTypes.string.isRequired,
-  onMenu: PropTypes.func
+  onChange: PropTypes.func
 };
 
 export default BandMenus;
