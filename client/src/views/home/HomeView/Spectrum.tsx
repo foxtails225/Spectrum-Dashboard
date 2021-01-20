@@ -13,14 +13,20 @@ import {
   Tooltip
 } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
-import { Entry } from 'src/types/entry';
+import { Band } from 'src/types/band';
+import { DATA_FILE } from 'src/constants';
 
+interface Status {
+  system: string;
+  band: string;
+  scope: number | null;
+}
 interface SpectrumProps {
   className?: string;
-  scope: string;
-  band: string;
-  onScope: (param: string) => void;
+  uids: number[];
+  status: Status;
   onContent: (param: string) => void;
+  onChange: (name: string, value: string | number) => void;
 }
 
 const calWidth = (start: number, end: number, length: number) => {
@@ -32,7 +38,7 @@ const getKey = (value: string): string => {
   return value.split(' ').join('_');
 };
 
-const getStyle = (dt: Entry, length: number) => {
+const getStyle = (dt: Band, length: number) => {
   const len = 40 / length + 'vh';
   let value = {};
 
@@ -82,8 +88,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     cursor: 'pointer'
   },
   scoped: {
-    boxShadow: theme.shadows[10],
-    zIndex: 1000
+    border: `3px solid ${colors.red[700]}`
   },
   service: {
     fontSize: theme.typography.pxToRem(12)
@@ -100,14 +105,19 @@ const useStyles = makeStyles((theme: Theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     display: 'flex'
+  },
+  clicked: {
+    boxShadow: theme.shadows[15],
+    border: `5px solid ${colors.red[700]}`,
+    zIndex: 1000
   }
 }));
 
 const Spectrum: FC<SpectrumProps> = ({
   className,
-  band,
-  scope,
-  onScope,
+  uids,
+  status,
+  onChange,
   onContent
 }) => {
   const [source, setSource] = useState([]);
@@ -120,15 +130,18 @@ const Spectrum: FC<SpectrumProps> = ({
 
   useEffect(() => {
     let req = new XMLHttpRequest();
-    req.open('GET', '/static/excel/dataset.xlsx', true);
+    req.open('GET', DATA_FILE, true);
     req.responseType = 'arraybuffer';
 
     req.onload = (e: ProgressEvent<EventTarget>) => {
       const data = new Uint8Array(req.response);
       const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet: any = XLSX.utils.sheet_to_json(workbook.Sheets[band], {
-        header: 1
-      });
+      const worksheet: any = XLSX.utils.sheet_to_json(
+        workbook.Sheets[status.band],
+        {
+          header: 1
+        }
+      );
       let sheetList = [];
       let result = [];
 
@@ -137,7 +150,7 @@ const Spectrum: FC<SpectrumProps> = ({
           if (idx > 0) sheetList.push(_.object(worksheet[0], el));
         });
 
-        sheetList.forEach((item: Entry) => {
+        sheetList.forEach((item: Band) => {
           const data = sheetList.filter(el => item.master === el.master);
           const count = _.filter(result, el => item.master === el.master);
 
@@ -153,20 +166,15 @@ const Spectrum: FC<SpectrumProps> = ({
         });
         setSource(result);
         setTotalPage(Object.keys(result).length / amount);
-        onScope(result[0].data[0].chart_type);
         onContent(result[0].data[0].content);
       } else {
-        setSource([]);
-        setTotalPage(0);
-        setPage(1);
-        onScope('');
-        onContent('');
+        handleInit();
       }
     };
 
     req.send();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [band]);
+  }, [status.band]);
 
   useEffect(() => {
     if (Object.keys(source).length > 0) {
@@ -177,9 +185,12 @@ const Spectrum: FC<SpectrumProps> = ({
           : source[totalPage * amount - 1];
 
       if (pointF && Object.keys(pointF).includes('end')) {
-        const len = Math.abs(pointS.start - pointF.end);
+        const start = pointS.start ? pointS.start : 0;
+        const end = pointF.end ? pointF.end : 0;
+        const len = Math.abs(start - end);
+
         let data = Object.values(source).filter(
-          (item: Entry) =>
+          (item: Band) =>
             item.master > (page - 1) * amount && item.master <= page * amount
         );
         setLength(len);
@@ -191,8 +202,16 @@ const Spectrum: FC<SpectrumProps> = ({
     }
   }, [page, source, totalPage]);
 
-  const handleClick = (type: string, content: string): void => {
-    onScope(type);
+  const handleInit = (): void => {
+    setSource([]);
+    setTotalPage(0);
+    setPage(1);
+    onChange('scope', null);
+    onContent('');
+  };
+
+  const handleClick = (value: number, content: string): void => {
+    onChange('scope', value);
     onContent(content);
   };
 
@@ -232,25 +251,26 @@ const Spectrum: FC<SpectrumProps> = ({
               data-end={idx === amount - 1 ? el.end : ''}
             >
               <Grid container alignItems="center" justify="center">
-                {el.data.map((dt: Entry, index: number) => (
+                {el.data.map((dt: Band, index: number) => (
                   <Tooltip
                     key={`${getKey(dt.service)}-${idx}-${index}`}
                     title={dt.service}
-                    disableFocusListener={!dt.tooltip}
-                    disableHoverListener={!dt.tooltip}
                     arrow
                   >
                     <Grid
                       item
                       md={12}
-                      onClick={() => handleClick(dt.chart_type, dt.content)}
+                      onClick={() => handleClick(dt.Item_No, dt.content)}
                       style={getStyle(dt, el.data.length)}
                       className={clsx(
                         classes.block,
-                        dt.chart_type === scope && classes.scoped
+                        uids.includes(dt.Item_No) && classes.scoped,
+                        uids.includes(dt.Item_No) &&
+                          dt.Item_No === status.scope &&
+                          classes.clicked
                       )}
                     >
-                      {!dt.tooltip && (
+                      {!dt.truncated ? (
                         <>
                           <Typography className={classes.service}>
                             {dt.service}
@@ -261,6 +281,10 @@ const Spectrum: FC<SpectrumProps> = ({
                             </Typography>
                           )}
                         </>
+                      ) : (
+                        <Typography className={classes.service}>
+                          {dt.truncated}
+                        </Typography>
                       )}
                     </Grid>
                   </Tooltip>
@@ -302,9 +326,8 @@ const Spectrum: FC<SpectrumProps> = ({
 
 Spectrum.propTypes = {
   className: PropTypes.string,
-  scope: PropTypes.string.isRequired,
-  band: PropTypes.string.isRequired,
-  onScope: PropTypes.func,
+  uids: PropTypes.array,
+  onChange: PropTypes.func,
   onContent: PropTypes.func
 };
 

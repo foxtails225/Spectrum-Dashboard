@@ -3,11 +3,12 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import * as xlsx from 'xlsx';
 import { Select, MenuItem, makeStyles, Theme, colors } from '@material-ui/core';
+import { SYSTEMS_FILE } from 'src/constants';
 
 interface SystemMenusProps {
   className?: string;
   system: string;
-  onChange: (param: any) => void;
+  onChange: (name: string, value: string) => void;
 }
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -27,16 +28,16 @@ const SystemMenus: FC<SystemMenusProps> = ({ className, system, onChange }) => {
   useEffect(() => {
     let result: string[] = [];
     let req = new XMLHttpRequest();
-    req.open('GET', 'static/excel/systems.xlsx', true);
+    req.open('GET', SYSTEMS_FILE, true);
     req.responseType = 'arraybuffer';
 
     req.onload = function(e) {
       const data = new Uint8Array(req.response);
       const workbook = xlsx.read(data, { type: 'array' });
-      const sdata = workbook.Sheets[workbook.SheetNames[0]];
+      const sdata = workbook.Sheets[workbook.SheetNames[1]];
       const worksheet: any = xlsx.utils.sheet_to_json(sdata, { header: 1 });
 
-      worksheet.forEach((el: any, index: number) => {
+      worksheet.forEach((el: Array<any>, index: number) => {
         index > 0 && !result.includes(el[0]) && result.push(el[0]);
       });
       setSystems(result);
@@ -45,12 +46,23 @@ const SystemMenus: FC<SystemMenusProps> = ({ className, system, onChange }) => {
     req.send();
   }, []);
 
+  useEffect(() => {
+    systems.length > 0 && onChange('system', systems[0]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [systems]);
+
+  const handleChange = (event): void => {
+    const { name, value } = event.target;
+    onChange(name, value);
+  };
+
   return (
     <Select
       name="system"
       value={system}
-      onChange={onChange}
+      onChange={handleChange}
       className={clsx(classes.root, className)}
+      defaultValue="none"
       fullWidth
     >
       <MenuItem value="none" className={classes.default} disabled>

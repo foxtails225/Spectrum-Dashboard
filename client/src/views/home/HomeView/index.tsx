@@ -1,4 +1,4 @@
-import React, { useState, FC, ChangeEvent } from 'react';
+import React, { useState, FC } from 'react';
 import {
   Grid,
   Container,
@@ -21,11 +21,13 @@ import Alert from './Alert';
 interface Status {
   system: string;
   band: string;
+  scope: number | null;
 }
 
 const initialStatus = {
   system: 'none',
-  band: 'none'
+  band: 'none',
+  scope: null
 };
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -50,17 +52,11 @@ const Header: FC = () => {
 
 const HomeView: FC = () => {
   const [status, setStatus] = useState<Status>(initialStatus);
+  const [uids, setUids] = useState<number[]>([]);
   const [content, setContent] = useState('');
-  const [scope, setScope] = useState('');
   const classes = useStyles();
 
-  const handleScope = (value: string): void => {
-    setScope(value);
-  };
-
-  const handleChange = (event: ChangeEvent): void => {
-    //@ts-ignore
-    const { name, value } = event.target;
+  const handleChange = (name: string, value: string): void => {
     setStatus(prevState => ({ ...prevState, [name]: value }));
   };
 
@@ -68,6 +64,10 @@ const HomeView: FC = () => {
     setContent(value);
   };
 
+  const handleUids = (value: number[]) => {
+    setUids(value);
+  };
+  
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="lg">
@@ -80,13 +80,17 @@ const HomeView: FC = () => {
                 <SystemMenus system={status.system} onChange={handleChange} />
               </Grid>
               <Grid item md={3}>
-                <BandMenus status={status} onChange={handleChange} />
+                <BandMenus
+                  status={status}
+                  onChange={handleChange}
+                  onUids={handleUids}
+                />
               </Grid>
               <Grid item md={12}>
                 <Spectrum
-                  scope={scope}
-                  band={status.band}
-                  onScope={handleScope}
+                  uids={uids}
+                  status={status}
+                  onChange={handleChange}
                   onContent={handleContent}
                 />
               </Grid>
@@ -94,7 +98,7 @@ const HomeView: FC = () => {
                 {content && content !== '' && <Content content={content} />}
               </Grid>
               <Grid item md={12}>
-                <GanttChart scope={scope} />
+                <GanttChart scope={status.scope} band={status.band} />
               </Grid>
             </Grid>
           </CardContent>

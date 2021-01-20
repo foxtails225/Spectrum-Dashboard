@@ -12,7 +12,7 @@ import {
   colors
 } from '@material-ui/core';
 import { Pagination } from '@material-ui/lab';
-import { Entry } from 'src/types/entry';
+import { Band } from 'src/types/band';
 
 interface SpectrumProps {
   className?: string;
@@ -31,7 +31,7 @@ const getKey = (value: string): string => {
   return value.split(' ').join('_');
 };
 
-const getStyle = (dt: Entry, length: number) => {
+const getStyle = (dt: Band, length: number) => {
   const len = 40 / length + 'vh';
   let value = {};
 
@@ -135,7 +135,7 @@ const Spectrum: FC<SpectrumProps> = ({
           if (idx > 0) sheetList.push(_.object(worksheet[0], el));
         });
 
-        sheetList.forEach((item: Entry) => {
+        sheetList.forEach((item: Band) => {
           const data = sheetList.filter(el => item.master === el.master);
           const count = _.filter(result, el => item.master === el.master);
 
@@ -177,7 +177,7 @@ const Spectrum: FC<SpectrumProps> = ({
       if (pointF && Object.keys(pointF).includes('end')) {
         const len = Math.abs(pointS.start - pointF.end);
         let data = Object.values(source).filter(
-          (item: Entry) =>
+          (item: Band) =>
             item.master > (page - 1) * amount && item.master <= page * amount
         );
         setLength(len);
@@ -230,7 +230,7 @@ const Spectrum: FC<SpectrumProps> = ({
               data-end={idx === amount - 1 ? el.end : ''}
             >
               <Grid container alignItems="center" justify="center">
-                {el.data.map((dt: Entry, index: number) => (
+                {el.data.map((dt: Band, index: number) => (
                   <Grid
                     item
                     md={12}
