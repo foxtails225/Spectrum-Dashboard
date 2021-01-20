@@ -11,7 +11,8 @@ import {
   Theme,
   colors
 } from '@material-ui/core';
-import GanttChart from './GanttChart';
+import SystemGantt from './SystemGantt';
+import UserGantt from './UserGantt';
 import SystemMenus from './SystemMenus';
 import BandMenus from './BandMenus';
 import Spectrum from './Spectrum';
@@ -67,7 +68,7 @@ const HomeView: FC = () => {
   const handleUids = (value: number[]) => {
     setUids(value);
   };
-  
+
   return (
     <div className={classes.root}>
       <Container component="main" maxWidth="lg">
@@ -98,8 +99,11 @@ const HomeView: FC = () => {
                 {content && content !== '' && <Content content={content} />}
               </Grid>
               <Grid item md={12}>
-                <GanttChart scope={status.scope} band={status.band} />
+                <SystemGantt scope={status.scope} band={status.band} />
               </Grid>
+              {/* <Grid item md={12}>
+                <UserGantt scope={status.scope} band={status.band} />
+              </Grid> */}
             </Grid>
           </CardContent>
         </Card>

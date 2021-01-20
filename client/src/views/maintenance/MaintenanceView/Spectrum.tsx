@@ -38,14 +38,16 @@ const getStyle = (dt: Band, length: number) => {
   if (dt.vertical) {
     value = {
       writingMode: 'vertical-rl',
-      backgroundColor: dt.hex,
+      //@ts-ignore
+      backgroundColor: dt.Hex,
       minHeight: len,
       maxHeight: len,
       transform: 'rotate(-180deg)'
     };
   } else {
     value = {
-      backgroundColor: dt.hex,
+      //@ts-ignore
+      backgroundColor: dt.Hex,
       minHeight: len,
       maxHeight: len,
       textAlign: 'center'
@@ -124,9 +126,12 @@ const Spectrum: FC<SpectrumProps> = ({
     req.onload = (e: ProgressEvent<EventTarget>) => {
       const data = new Uint8Array(req.response);
       const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet: any = XLSX.utils.sheet_to_json(workbook.Sheets[menu], {
-        header: 1
-      });
+      const worksheet: any = XLSX.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[0]],
+        {
+          header: 1
+        }
+      );
       let sheetList = [];
       let result = [];
 
@@ -134,7 +139,7 @@ const Spectrum: FC<SpectrumProps> = ({
         worksheet.forEach((el: any, idx: number) => {
           if (idx > 0) sheetList.push(_.object(worksheet[0], el));
         });
-
+        
         sheetList.forEach((item: Band) => {
           const data = sheetList.filter(el => item.master === el.master);
           const count = _.filter(result, el => item.master === el.master);

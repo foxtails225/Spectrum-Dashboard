@@ -16,7 +16,7 @@ import {
 import { colorSet } from './colors';
 import useWindowSize from 'src/hooks/useWindowSize';
 import formatDate from 'src/utils/formatDate';
-import { SYSTEMS_FILE } from 'src/constants';
+import { USER_FILE } from 'src/constants';
 import { Chart } from 'src/types/system';
 
 interface GanttChartProps {
@@ -42,7 +42,7 @@ const INIT_Y_AXIS = {
   y_step: 0
 };
 
-const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
+const UserGantt: FC<GanttChartProps> = ({ scope, band }) => {
   const [source, setSource] = useState([]);
   const [traces, setTraces] = useState([]);
   const [startDate, setStartDate] = useState(0);
@@ -53,7 +53,7 @@ const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
   useEffect(() => {
     let sheetList: Object = {};
     let req = new XMLHttpRequest();
-    req.open('GET', SYSTEMS_FILE, true);
+    req.open('GET', USER_FILE, true);
     req.responseType = 'arraybuffer';
 
     req.onload = function(e) {
@@ -75,7 +75,7 @@ const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
 
       sheetList[Object.keys(sheetList)[0]].forEach(item => {
         item['data'] = sheetList[Object.keys(sheetList)[1]].filter(
-          el => item.Chart_Type === el.Chart_Type && el.Item_No === scope
+          el => el.Item_No === scope
         );
       });
       setSource(sheetList[Object.keys(sheetList)[0]]);
@@ -93,7 +93,7 @@ const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
 
     source.forEach((item: Chart) => {
       let preItem = item;
-      
+
       if (item.Chart_Type === band) {
         if (Object.keys(item).includes('data') && item.data.length > 0) {
           x_start = item.data[0].SDate;
@@ -104,7 +104,7 @@ const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
         y_step = item.Y_Axis_Step_Size;
         y_start = item.Y_Axis_Start;
         y_stop = item.Y_Axis_Stop;
-        
+
         if (Object.keys(preItem).includes('data') && preItem.data.length > 0) {
           item.data.forEach((dt, index) => {
             let item_date = new Date(dt.SDate);
@@ -118,7 +118,7 @@ const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
             }
 
             item.data.forEach((d, idx) => {
-              if (idx < index && d.Customer === dt.Customer) {
+              if (idx < index && d.System === dt.System) {
                 index = idx;
                 isLegend = false;
               }
@@ -167,12 +167,11 @@ const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
         setRows(item.data);
       }
     });
-    
     setTraces(traceList);
     setStartDate(x_start);
-    setYAxis({ y_start: y_start, y_stop: y_stop, y_step: y_step });
+    setYAxis({ y_start, y_stop, y_step });
   }, [band, source]);
-
+  
   return (
     <>
       <Grid container alignItems="center" justify="center" spacing={3}>
@@ -289,8 +288,8 @@ const GanttChart: FC<GanttChartProps> = ({ scope, band }) => {
   );
 };
 
-GanttChart.propTypes = {
+UserGantt.propTypes = {
   className: PropTypes.string
 };
 
-export default GanttChart;
+export default UserGantt;

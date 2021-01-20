@@ -7,4 +7,6 @@ export const BASE_URL =
 
 export const SYSTEMS_FILE = 'static/excel/systems_dataset_v1.xlsx';
 
+export const USER_FILE = 'static/excel/users_dataset_v1.xlsx';
+
 export const DATA_FILE = 'static/excel/dataset_v1.xlsx';
