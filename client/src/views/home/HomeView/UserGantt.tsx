@@ -20,6 +20,7 @@ import { USER_FILE } from 'src/constants';
 interface UserGanttProps {
   className?: string;
   scope: number;
+  system: string;
 }
 
 interface User {
@@ -42,7 +43,7 @@ const INIT_Y_AXIS = {
   end: 0
 };
 
-const UserGantt: FC<UserGanttProps> = ({ scope }) => {
+const UserGantt: FC<UserGanttProps> = ({ scope, system }) => {
   const [source, setSource] = useState([]);
   const [traces, setTraces] = useState([]);
   const [yAxis, setYAxis] = useState(INIT_Y_AXIS);
@@ -65,7 +66,7 @@ const UserGantt: FC<UserGanttProps> = ({ scope }) => {
       );
 
       worksheet.forEach((item, idx: number) => {
-        if (idx > 0)
+        if (idx > 0 && system === item[1])
           result.push({
             User: item[0],
             System: item[1],
@@ -77,7 +78,7 @@ const UserGantt: FC<UserGanttProps> = ({ scope }) => {
     };
 
     req.send();
-  }, [scope]);
+  }, [scope, system]);
 
   useEffect(() => {
     const start = source.length / 5;
@@ -115,7 +116,7 @@ const UserGantt: FC<UserGanttProps> = ({ scope }) => {
           <Plot
             data={traces}
             layout={{
-              width: size.width * 0.75,
+              width: size.width * 0.7,
               xaxis: {
                 title: '',
                 titlefont: {

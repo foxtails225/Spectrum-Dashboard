@@ -102,7 +102,7 @@ const HomeView: FC = () => {
                 <SystemGantt scope={status.scope} band={status.band} />
               </Grid>
               <Grid item md={12}>
-                <UserGantt scope={status.scope} />
+                <UserGantt scope={status.scope} system={status.system} />
               </Grid>
             </Grid>
           </CardContent>

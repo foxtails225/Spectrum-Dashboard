@@ -186,7 +186,7 @@ const SystemGantt: FC<SystemGanttProps> = ({ scope, band }) => {
           <Plot
             data={traces}
             layout={{
-              width: size.width * 0.75,
+              width: size.width * 0.7,
               xaxis: {
                 title: '',
                 titlefont: {
