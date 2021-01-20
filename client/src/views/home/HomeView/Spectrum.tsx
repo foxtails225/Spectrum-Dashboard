@@ -1,7 +1,7 @@
 import React, { useState, useEffect, FC, ChangeEvent } from 'react';
 import PropTypes from 'prop-types';
 import clsx from 'clsx';
-import * as XLSX from 'xlsx';
+import * as xlsx from 'xlsx';
 import _ from 'underscore';
 import {
   Grid,
@@ -135,8 +135,8 @@ const Spectrum: FC<SpectrumProps> = ({
 
     req.onload = (e: ProgressEvent<EventTarget>) => {
       const data = new Uint8Array(req.response);
-      const workbook = XLSX.read(data, { type: 'array' });
-      const worksheet: any = XLSX.utils.sheet_to_json(
+      const workbook = xlsx.read(data, { type: 'array' });
+      const worksheet: any = xlsx.utils.sheet_to_json(
         workbook.Sheets[status.band],
         {
           header: 1

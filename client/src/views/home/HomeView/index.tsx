@@ -101,9 +101,9 @@ const HomeView: FC = () => {
               <Grid item md={12}>
                 <SystemGantt scope={status.scope} band={status.band} />
               </Grid>
-              {/* <Grid item md={12}>
-                <UserGantt scope={status.scope} band={status.band} />
-              </Grid> */}
+              <Grid item md={12}>
+                <UserGantt scope={status.scope} />
+              </Grid>
             </Grid>
           </CardContent>
         </Card>

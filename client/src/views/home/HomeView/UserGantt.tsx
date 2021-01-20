@@ -2,7 +2,6 @@ import React, { useState, useEffect, FC } from 'react';
 import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
 import * as xlsx from 'xlsx';
-import _ from 'underscore';
 import {
   Grid,
   TableContainer,
@@ -17,41 +16,40 @@ import { colorSet } from './colors';
 import useWindowSize from 'src/hooks/useWindowSize';
 import formatDate from 'src/utils/formatDate';
 import { USER_FILE } from 'src/constants';
-import { Chart } from 'src/types/system';
 
 interface UserGanttProps {
   className?: string;
   scope: number;
-  band: string;
+}
+
+interface User {
+  User: string;
+  System: string;
+  SDate: Date;
+  EDate: Date;
 }
 
 const columns = [
   { id: 'no', name: 'no' },
+  { id: 'User', name: 'user' },
   { id: 'System', name: 'system' },
-  { id: 'Chart_Type', name: 'band' },
-  { id: 'Link_Type', name: 'link type' },
-  { id: 'SFreq_GHz', name: 'min freq (ghz)' },
-  { id: 'EFreq_GHz', name: 'max freq (ghz)' },
   { id: 'SDate', name: 'start date' },
   { id: 'EDate', name: 'end date' }
 ];
 
 const INIT_Y_AXIS = {
-  y_start: 0,
-  y_stop: 0,
-  y_step: 0
+  start: 0,
+  end: 0
 };
 
-const UserGantt: FC<UserGanttProps> = ({ scope, band }) => {
+const UserGantt: FC<UserGanttProps> = ({ scope }) => {
   const [source, setSource] = useState([]);
   const [traces, setTraces] = useState([]);
-  const [startDate, setStartDate] = useState(0);
   const [yAxis, setYAxis] = useState(INIT_Y_AXIS);
-  const [rows, setRows] = useState([]);
   const size = useWindowSize();
 
   useEffect(() => {
-    let sheetList: Object = {};
+    let result = [];
     let req = new XMLHttpRequest();
     req.open('GET', USER_FILE, true);
     req.responseType = 'arraybuffer';
@@ -59,119 +57,50 @@ const UserGantt: FC<UserGanttProps> = ({ scope, band }) => {
     req.onload = function(e) {
       const data = new Uint8Array(req.response);
       const workbook = xlsx.read(data, { type: 'array' });
-
-      workbook.SheetNames.forEach(item => {
-        let worksheetList = [];
-        let worksheet: any = xlsx.utils.sheet_to_json(workbook.Sheets[item], {
+      const worksheet: any = xlsx.utils.sheet_to_json(
+        workbook.Sheets[workbook.SheetNames[1]],
+        {
           header: 1
-        });
-        sheetList[item] = [];
+        }
+      );
 
-        worksheet.forEach((el: any, index: number) => {
-          if (index > 0) worksheetList.push(_.object(worksheet[0], el));
-        });
-        sheetList[item] = worksheetList;
+      worksheet.forEach((item, idx: number) => {
+        if (idx > 0)
+          result.push({
+            User: item[0],
+            System: item[1],
+            SDate: formatDate(item[2], 0),
+            EDate: formatDate(item[3], 0)
+          });
       });
-
-      sheetList[Object.keys(sheetList)[0]].forEach(item => {
-        item['data'] = sheetList[Object.keys(sheetList)[1]].filter(
-          el => el.Item_No === scope
-        );
-      });
-      setSource(sheetList[Object.keys(sheetList)[0]]);
+      setSource(result);
     };
 
     req.send();
   }, [scope]);
 
   useEffect(() => {
-    let x_start = 0,
-      y_start = 0,
-      y_step = 0,
-      y_stop = 0;
+    const start = source.length / 5;
+    const end = (source.length / 5) * 4;
     let traceList = [];
 
-    source.forEach((item: Chart) => {
-      let preItem = item;
-
-      if (item.Chart_Type === band) {
-        if (Object.keys(item).includes('data') && item.data.length > 0) {
-          x_start = item.data[0].SDate;
-        } else {
-          x_start = item.X_Axis_Start;
-        }
-
-        y_step = item.Y_Axis_Step_Size;
-        y_start = item.Y_Axis_Start;
-        y_stop = item.Y_Axis_Stop;
-
-        if (Object.keys(preItem).includes('data') && preItem.data.length > 0) {
-          item.data.forEach((dt, index) => {
-            let item_date = new Date(dt.SDate);
-            let c_date = new Date(x_start);
-            let y_point =
-              dt.SFreq_GHz + Math.abs(dt.SFreq_GHz - dt.EFreq_GHz) / 2;
-            let isLegend = true;
-
-            if (item_date < c_date) {
-              x_start = dt.SDate;
-            }
-
-            item.data.forEach((d, idx) => {
-              if (idx < index && d.System === dt.System) {
-                index = idx;
-                isLegend = false;
-              }
-            });
-
-            let trace = {
-              name: dt.System,
-              x: [formatDate(dt.SDate, 0), formatDate(dt.EDate, 0)],
-              y: [y_point, y_point],
-              mode: 'lines',
-              line: {
-                width:
-                  (Math.abs(dt.SFreq_GHz - dt.EFreq_GHz) / (y_step * 10)) * 340,
-                color: colorSet[index % colorSet.length]
-              },
-              showlegend: isLegend
-            };
-
-            traceList.push(trace);
-          });
-        } else {
-          let trace = {
-            name: '',
-            x: [x_start, x_start + 10],
-            y: [y_start, y_start],
-            mode: 'lines',
-            line: {
-              width: (Math.abs(y_start - y_stop) / (y_step * 10)) * 340,
-              color: 'transparent'
-            },
-            showlegend: false,
-            marker: {
-              size: 12,
-              shape: [
-                'line-ew',
-                'diamond-open',
-                'line-ew',
-                'line-ew',
-                'diamond-open',
-                'line-ew'
-              ]
-            }
-          };
-          traceList.push(trace);
-        }
-        setRows(item.data);
-      }
+    source.forEach((item: User, idx: number) => {
+      var trace = {
+        x: [item.SDate, item.EDate],
+        y: [item.User, item.User],
+        name: item.User,
+        mode: 'lines',
+        line: { width: 20, color: colorSet[idx % colorSet.length] }
+      };
+      traceList.push(trace);
     });
+
     setTraces(traceList);
-    setStartDate(x_start);
-    setYAxis({ y_start, y_stop, y_step });
-  }, [band, source]);
-  
+    setYAxis({ start, end });
+  }, [source]);
+
+  useEffect(() => {}, [traces]);
+
   return (
     <>
       <Grid container alignItems="center" justify="center" spacing={3}>
@@ -196,14 +125,12 @@ const UserGantt: FC<UserGanttProps> = ({ scope, band }) => {
                 tickfont: {
                   size: 12
                 },
-                range: [formatDate(startDate, -1), formatDate(startDate, 7)],
                 dtick: 'M12',
                 showgrid: true,
                 zerolinecolor: '#969696',
                 zerolinewidth: 1
               },
               yaxis: {
-                title: 'Frequency (GHZ)',
                 titlefont: {
                   size: 12,
                   color: '#212529'
@@ -211,25 +138,11 @@ const UserGantt: FC<UserGanttProps> = ({ scope, band }) => {
                 tickfont: {
                   size: 12
                 },
-                range: [yAxis.y_start, yAxis.y_stop],
-                dtick: yAxis.y_step,
+                range: [yAxis.start, yAxis.end],
+                dtick: 1,
                 showgrid: true,
                 zerolinecolor: '#969696',
                 zerolinewidth: 1
-              },
-              legend: {
-                orientation: 'h',
-                xanchor: 'right',
-                x: 1,
-                traceorder: 'normal',
-                font: {
-                  family: 'sans-serif',
-                  size: 12,
-                  color: '#000'
-                },
-                bordercolor: '#212529',
-                borderwidth: 1,
-                tracegroupgap: 100
               },
               margin: {
                 l: 60,
@@ -238,7 +151,7 @@ const UserGantt: FC<UserGanttProps> = ({ scope, band }) => {
                 t: 30,
                 pad: 5
               },
-              showlegend: true
+              showlegend: false
             }}
             config={{ displayModeBar: false }}
           />
@@ -260,21 +173,11 @@ const UserGantt: FC<UserGanttProps> = ({ scope, band }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row, index) => (
-                  <TableRow
-                    hover
-                    key={`${row.Chart_Type.split(' ').join('_')}_${index}`}
-                  >
+                {source.map((row, index) => (
+                  <TableRow hover key={`user-row-${index}`}>
                     {columns.map((column, idx) => (
                       <TableCell key={column.id} align="center">
-                        {idx !== 0
-                          ? column.id === 'SFreq_GHz' ||
-                            column.id === 'EFreq_GHz'
-                            ? row[column.id].toFixed(7)
-                            : column.id === 'SDate' || column.id === 'EDate'
-                            ? formatDate(row[column.id], 0)
-                            : row[column.id]
-                          : index + 1}
+                        {idx === 0 ? index + 1 : row[column.id]}
                       </TableCell>
                     ))}
                   </TableRow>
