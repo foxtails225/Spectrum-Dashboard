@@ -19,7 +19,7 @@ import formatDate from 'src/utils/formatDate';
 import { USER_FILE } from 'src/constants';
 import { Chart } from 'src/types/system';
 
-interface GanttChartProps {
+interface UserGanttProps {
   className?: string;
   scope: number;
   band: string;
@@ -42,7 +42,7 @@ const INIT_Y_AXIS = {
   y_step: 0
 };
 
-const UserGantt: FC<GanttChartProps> = ({ scope, band }) => {
+const UserGantt: FC<UserGanttProps> = ({ scope, band }) => {
   const [source, setSource] = useState([]);
   const [traces, setTraces] = useState([]);
   const [startDate, setStartDate] = useState(0);

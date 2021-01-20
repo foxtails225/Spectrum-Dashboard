@@ -49,13 +49,13 @@ const routes: Routes = [
     component: lazy(() => import('src/views/maintenance/MaintenanceView'))
   },
   {
+    exact: true,
+    path: '/',
+    component: HomeView
+  },
+  {
     path: '*',
     routes: [
-      {
-        exact: true,
-        path: '/',
-        component: HomeView
-      },
       {
         component: () => <Redirect to="/404" />
       }

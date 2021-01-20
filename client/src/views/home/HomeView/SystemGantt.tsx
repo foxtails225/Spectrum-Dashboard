@@ -19,7 +19,7 @@ import formatDate from 'src/utils/formatDate';
 import { SYSTEMS_FILE } from 'src/constants';
 import { Chart } from 'src/types/system';
 
-interface GanttChartProps {
+interface SystemGanttProps {
   className?: string;
   scope: number;
   band: string;
@@ -42,7 +42,7 @@ const INIT_Y_AXIS = {
   y_step: 0
 };
 
-const SystemGantt: FC<GanttChartProps> = ({ scope, band }) => {
+const SystemGantt: FC<SystemGanttProps> = ({ scope, band }) => {
   const [source, setSource] = useState([]);
   const [traces, setTraces] = useState([]);
   const [startDate, setStartDate] = useState(0);
@@ -75,14 +75,14 @@ const SystemGantt: FC<GanttChartProps> = ({ scope, band }) => {
 
       sheetList[Object.keys(sheetList)[0]].forEach(item => {
         item['data'] = sheetList[Object.keys(sheetList)[1]].filter(
-          el => el.Item_No === scope
+          el => el.Chart_Type === band && el.Item_No === scope
         );
       });
       setSource(sheetList[Object.keys(sheetList)[0]]);
     };
 
     req.send();
-  }, [scope]);
+  }, [scope, band]);
 
   useEffect(() => {
     let x_start = 0,
@@ -171,7 +171,7 @@ const SystemGantt: FC<GanttChartProps> = ({ scope, band }) => {
     setStartDate(x_start);
     setYAxis({ y_start, y_stop, y_step });
   }, [band, source]);
-  
+
   return (
     <>
       <Grid container alignItems="center" justify="center" spacing={3}>
