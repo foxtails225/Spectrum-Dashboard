@@ -19,13 +19,12 @@ const env: string = process.env.NODE_ENV || 'development';
 
 if (env === 'production') {
   app.use(morgan('combined', { stream }));
-  app.use(cors({ origin: 'http://52.254.23.171', credentials: true }));
 } else if (env === 'development') {
   app.use(morgan('dev', { stream }));
-  app.use(cors({ origin: true, credentials: true }));
 }
 
 app.use(hpp());
+app.use(cors());
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(express.json());
