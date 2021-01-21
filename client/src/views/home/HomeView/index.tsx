@@ -3,10 +3,13 @@ import {
   Grid,
   Container,
   CssBaseline,
+  Avatar,
   Card,
   CardHeader,
-  Typography,
   CardContent,
+  CardActions,
+  Link,
+  Typography,
   makeStyles,
   Theme,
   colors
@@ -36,17 +39,36 @@ const useStyles = makeStyles((theme: Theme) => ({
     margin: theme.spacing(5)
   },
   card: {
-    padding: theme.spacing(2)
+    paddingTop: 0,
+    paddingLeft: 0,
+    paddingRight: 0,
+    backgroundColor: colors.grey[100],
+    boxShadow: theme.shadows[10]
+  },
+  header: {
+    color: colors.grey[50],
+    backgroundColor: colors.blue[700]
+  },
+  cardContent: {
+    paddingTop: theme.spacing(3),
+    padding: theme.spacing(6)
   },
   content: {
     backgroundColor: colors.grey[50]
+  },
+  footer: {
+    padding: theme.spacing(3),
+    backgroundColor: colors.grey[300]
+  },
+  avatar: {
+    width: theme.spacing(10)
   }
 }));
 
 const Header: FC = () => {
   return (
-    <Typography component="h1" variant="h5" color="textSecondary">
-      Spectrum Dashboard
+    <Typography component="header" variant="h5">
+      Operational Commercial Spectrum Snapshot
     </Typography>
   );
 };
@@ -74,8 +96,8 @@ const HomeView: FC = () => {
       <Container component="main" maxWidth="lg">
         <CssBaseline />
         <Card className={classes.card}>
-          <CardHeader title={<Header />} />
-          <CardContent>
+          <CardHeader className={classes.header} title={<Header />} />
+          <CardContent className={classes.cardContent}>
             <Grid container alignItems="center" spacing={3}>
               <Grid item md={3}>
                 <SystemMenus system={status.system} onChange={handleChange} />
@@ -95,9 +117,11 @@ const HomeView: FC = () => {
                   onContent={handleContent}
                 />
               </Grid>
-              <Grid item md={12} className={classes.content}>
-                {content && content !== '' && <Content content={content} />}
-              </Grid>
+              {content && content !== '' && (
+                <Grid item md={12} className={classes.content}>
+                  <Content content={content} />
+                </Grid>
+              )}
               <Grid item md={12}>
                 <SystemGantt scope={status.scope} band={status.band} />
               </Grid>
@@ -106,6 +130,20 @@ const HomeView: FC = () => {
               </Grid>
             </Grid>
           </CardContent>
+          <CardActions className={classes.footer}>
+            <Avatar
+              variant="square"
+              src="static/teltrium.png"
+              className={classes.avatar}
+            />
+            <Typography component="footer" variant="body2">
+              For more information of spectrum licensing requirements for using
+              a commercial system, go to{' '}
+              <Link href="http://spectrum.teltrium.com/" target="_blank">
+                http://spectrum.teltrium.com/
+              </Link>
+            </Typography>
+          </CardActions>
         </Card>
       </Container>
       <Alert />

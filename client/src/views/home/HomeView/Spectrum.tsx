@@ -88,7 +88,7 @@ const useStyles = makeStyles((theme: Theme) => ({
     cursor: 'pointer'
   },
   scoped: {
-    border: `3px solid ${colors.red[700]}`
+    border: `3px dashed ${colors.red[700]}`
   },
   service: {
     fontSize: theme.typography.pxToRem(12)
@@ -108,7 +108,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   },
   clicked: {
     boxShadow: theme.shadows[15],
-    border: `5px solid ${colors.red[700]}`,
+    border: `4px dashed ${colors.red[700]}`,
     zIndex: 1000
   }
 }));
@@ -300,7 +300,7 @@ const Spectrum: FC<SpectrumProps> = ({
         className={classes.announce}
       >
         <Grid item md={9}>
-          <Typography variant="body1">
+          <Typography variant="body2" component="p">
             This chart will only work with 1024 x 768. We recommend full screen
             mode.
           </Typography>
