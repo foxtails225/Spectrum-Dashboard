@@ -17,7 +17,7 @@ interface SystemTableProps {
 }
 
 const SystemTable: FC<SystemTableProps> = ({ rows, columns }) => {
-  const renderColumn = (name: string, row: any, idx: number) => {
+  const renderColumn = (name: string, row: any, idx: number, index: number) => {
     if (idx !== 0) {
       switch (name) {
         case 'SFreq_GHz':
@@ -30,7 +30,7 @@ const SystemTable: FC<SystemTableProps> = ({ rows, columns }) => {
           return row[name];
       }
     } else {
-      return idx + 1;
+      return index + 1;
     }
   };
 
@@ -58,7 +58,7 @@ const SystemTable: FC<SystemTableProps> = ({ rows, columns }) => {
             >
               {columns.map((column, idx) => (
                 <TableCell key={column.id} align="center">
-                  {renderColumn(column.id, row, idx)}
+                  {renderColumn(column.id, row, idx, index)}
                 </TableCell>
               ))}
             </TableRow>

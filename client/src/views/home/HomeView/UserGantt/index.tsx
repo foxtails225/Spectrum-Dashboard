@@ -95,8 +95,8 @@ const UserGantt: FC<UserGanttProps> = ({ scope, system }) => {
   }, [scope, system]);
 
   useEffect(() => {
-    const start = source.length / 5;
-    const stop = (source.length / 5) * 4;
+    const start = (source.length / 5) * 3;
+    const stop = 0;
     let traceList = [];
 
     source.forEach((item: User, idx: number) => {

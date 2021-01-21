@@ -16,8 +16,8 @@ interface UserTableProps {
 }
 
 const UserTable: FC<UserTableProps> = ({ rows, columns }) => {
-  const renderColumn = (name: string, row: any, idx: number) => {
-    return idx === 0 ? idx + 1 : row[name];
+  const renderColumn = (name: string, row: any, idx: number, index: number) => {
+    return idx === 0 ? index + 1 : row[name];
   };
 
   return (
@@ -41,7 +41,7 @@ const UserTable: FC<UserTableProps> = ({ rows, columns }) => {
             <TableRow hover key={`user-row-${index}`}>
               {columns.map((column, idx) => (
                 <TableCell key={column.id} align="center">
-                  {renderColumn(column.id, row, idx)}
+                  {renderColumn(column.id, row, idx, index)}
                 </TableCell>
               ))}
             </TableRow>
