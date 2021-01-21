@@ -68,7 +68,7 @@ const useStyles = makeStyles((theme: Theme) => ({
 const Header: FC = () => {
   return (
     <Typography component="header" variant="h5">
-      Operational Commercial Spectrum Snapshot
+      Commercial Operational Spectrum Snapshot
     </Typography>
   );
 };
