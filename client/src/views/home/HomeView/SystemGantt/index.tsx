@@ -24,14 +24,19 @@ import SystemTable from './SystemTable';
 
 interface SystemGanttProps {
   className?: string;
-  scope: number;
-  band: string;
+  status: Status;
 }
 
 interface Axis {
   start: number;
   stop: number;
   step: number;
+}
+
+interface Status {
+  system: string;
+  band: string;
+  scope: number | null;
 }
 
 const columns = [
@@ -61,7 +66,7 @@ const useStyles = makeStyles((theme: Theme) => ({
   }
 }));
 
-const SystemGantt: FC<SystemGanttProps> = ({ scope, band }) => {
+const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
   const [tab, setTab] = useState(0);
   const [source, setSource] = useState([]);
   const [traces, setTraces] = useState([]);
@@ -95,14 +100,14 @@ const SystemGantt: FC<SystemGanttProps> = ({ scope, band }) => {
 
       sheetList[Object.keys(sheetList)[0]].forEach(item => {
         item['data'] = sheetList[Object.keys(sheetList)[1]].filter(
-          el => el.Chart_Type === band && el.Item_No === scope
+          el => el.Chart_Type === status.band && el.Item_No === status.scope
         );
       });
       setSource(sheetList[Object.keys(sheetList)[0]]);
     };
 
     req.send();
-  }, [scope, band]);
+  }, [status.scope, status.band]);
 
   useEffect(() => {
     let x_start = 0,
@@ -114,8 +119,15 @@ const SystemGantt: FC<SystemGanttProps> = ({ scope, band }) => {
     source.forEach((item: Chart) => {
       let preItem = item;
 
-      if (item.Chart_Type === band) {
+      if (item.Chart_Type === status.band) {
         if (Object.keys(item).includes('data') && item.data.length > 0) {
+          let idx = item.data.map(dt => dt.System).indexOf(status.system);
+          item.data.splice(
+            item.data.length - 1,
+            0,
+            item.data.splice(idx, 1)[0]
+          );
+          console.log(item.data);
           x_start = item.data[0].SDate;
         } else {
           x_start = item.X_Axis_Start;
@@ -190,7 +202,7 @@ const SystemGantt: FC<SystemGanttProps> = ({ scope, band }) => {
     setTraces(traceList);
     setStartDate(x_start);
     setAxis({ start: y_start, stop: y_stop, step: y_step });
-  }, [band, source]);
+  }, [status.band, status.system, source]);
 
   const handleChange = (event: ChangeEvent<{}>, value: number) => {
     setTab(value);

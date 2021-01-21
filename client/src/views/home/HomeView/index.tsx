@@ -3,7 +3,6 @@ import {
   Grid,
   Container,
   CssBaseline,
-  Avatar,
   Card,
   CardHeader,
   CardContent,
@@ -14,6 +13,7 @@ import {
   Theme,
   colors
 } from '@material-ui/core';
+import ImportantDevicesIcon from '@material-ui/icons/ImportantDevices';
 import SystemGantt from './SystemGantt';
 import UserGantt from './UserGantt';
 import SystemMenus from './SystemMenus';
@@ -59,9 +59,6 @@ const useStyles = makeStyles((theme: Theme) => ({
   footer: {
     padding: theme.spacing(3),
     backgroundColor: colors.grey[300]
-  },
-  avatar: {
-    width: theme.spacing(10)
   }
 }));
 
@@ -123,7 +120,7 @@ const HomeView: FC = () => {
                 </Grid>
               )}
               <Grid item md={12}>
-                <SystemGantt scope={status.scope} band={status.band} />
+                <SystemGantt status={status} />
               </Grid>
               <Grid item md={12}>
                 <UserGantt scope={status.scope} system={status.system} />
@@ -131,16 +128,12 @@ const HomeView: FC = () => {
             </Grid>
           </CardContent>
           <CardActions className={classes.footer}>
-            <Avatar
-              variant="square"
-              src="static/teltrium.png"
-              className={classes.avatar}
-            />
+            <ImportantDevicesIcon color="primary" />
             <Typography component="footer" variant="body2">
               For more information of spectrum licensing requirements for using
               a commercial system, go to{' '}
-              <Link href="http://spectrum.teltrium.com/" target="_blank">
-                http://spectrum.teltrium.com/
+              <Link href="http://spectrum.gov" target="_blank">
+                http://spectrum.gov
               </Link>
             </Typography>
           </CardActions>

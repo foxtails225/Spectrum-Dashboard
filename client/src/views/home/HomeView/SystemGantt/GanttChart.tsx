@@ -19,7 +19,7 @@ interface GanttChartsProps {
 
 const GanttChart: FC<GanttChartsProps> = ({ traces, startDate, axis }) => {
   const size = useWindowSize();
-
+  
   return (
     <Plot
       data={traces}
