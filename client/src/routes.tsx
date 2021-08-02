@@ -1,6 +1,6 @@
 import React, { Suspense, Fragment, lazy } from 'react';
 import { Switch, Redirect, Route } from 'react-router-dom';
-import HomeView from 'src/views/home/HomeView';
+import HomeView from 'src/pages/home';
 import LoadingScreen from 'src/components/LoadingScreen';
 
 type Routes = {
@@ -41,12 +41,12 @@ const routes: Routes = [
   {
     exact: true,
     path: '/404',
-    component: lazy(() => import('src/views/errors/NotFoundView'))
+    component: lazy(() => import('src/pages/errors/NotFoundView'))
   },
   {
     exact: true,
     path: '/maintenance',
-    component: lazy(() => import('src/views/maintenance/MaintenanceView'))
+    component: lazy(() => import('src/pages/maintenance'))
   },
   {
     exact: true,

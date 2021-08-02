@@ -5,7 +5,9 @@ export const LOCAL_URL = 'http://127.0.0.1:7000/api';
 export const BASE_URL =
   process.env.NODE_ENV === 'production' ? SERVER_URL : LOCAL_URL;
 
-export const SYSTEMS_FILE = 'static/excel/systems_dataset_v3.xlsx';
+export const SYSTEMS_FILE1 = 'static/excel/systems_dataset_v3.xlsx';
+
+export const SYSTEMS_FILE2 = 'static/excel/lunar_systems_dataset_v1.xlsx';
 
 export const USER_FILE = 'static/excel/users_dataset_v2.xlsx';
 
