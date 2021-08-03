@@ -166,8 +166,6 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
             };
             annotList.push(annot);
             traceList.push(trace);
-            count === 10 && console.log(trace);
-            count === 11 && console.log(trace);
             count++;
           });
         } else {
