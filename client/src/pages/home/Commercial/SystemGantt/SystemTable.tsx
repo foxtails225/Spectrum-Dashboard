@@ -8,7 +8,7 @@ import {
   TableCell,
   TableBody
 } from '@material-ui/core';
-import formatDate from 'src/utils/formatDate';
+import { formatDate } from 'src/utils/formatDate';
 
 interface SystemTableProps {
   className?: string;

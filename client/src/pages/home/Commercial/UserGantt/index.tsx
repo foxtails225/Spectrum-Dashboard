@@ -15,7 +15,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import TabPanel from 'src/components/TabPanel';
 import { colorSet } from '../colors';
-import formatDate from 'src/utils/formatDate';
+import { formatDate } from 'src/utils/formatDate';
 import { USER_FILE } from 'src/constants';
 import UserTable from './UserTable';
 import GanttChart from './GanttChart';

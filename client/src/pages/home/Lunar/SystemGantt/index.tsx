@@ -5,7 +5,7 @@ import _ from 'underscore';
 import { Grid, Card, CardContent, Typography, Theme } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { colorSet } from '../colors';
-import formatDate from 'src/utils/formatDate';
+import { formatDate, getMiddleDate } from 'src/utils/formatDate';
 import { SYSTEMS_FILE2 } from 'src/constants';
 import { Chart } from 'src/types/system';
 import GanttChart from './GanttChart';
@@ -59,6 +59,7 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
   const [traces, setTraces] = useState([]);
   const [startDate, setStartDate] = useState(0);
   const [axis, setAxis] = useState(INIT_AXIS);
+  const [annots, setAnnots] = useState([]);
   const [rows, setRows] = useState([]);
   const classes = useStyles();
 
@@ -101,7 +102,9 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
       y_start = 0,
       y_step = 0,
       y_stop = 0;
-    let traceList = [];
+    let traceList = [],
+      count = 1,
+      annotList = [];
 
     source.forEach((item: Chart) => {
       let preItem = item;
@@ -141,9 +144,9 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
                 isLegend = false;
               }
             });
-
+            
             let trace = {
-              name: dt.System,
+              name: count + '. ' + dt.System,
               x: [formatDate(dt.SDate, 0), formatDate(dt.EDate, 0)],
               y: [y_point, y_point],
               mode: 'lines',
@@ -154,8 +157,18 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
               },
               showlegend: isLegend
             };
-
+            const annot = {
+              x: getMiddleDate(dt.SDate, dt.EDate),
+              y: y_point,
+              text: count,
+              showarrow: false,
+              font: { color: 'black', size: 14 }
+            };
+            annotList.push(annot);
             traceList.push(trace);
+            count === 10 && console.log(trace);
+            count === 11 && console.log(trace);
+            count++;
           });
         } else {
           let trace = {
@@ -185,7 +198,9 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
         setRows(item.data);
       }
     });
+
     setTraces(traceList);
+    setAnnots(annotList);
     setStartDate(x_start);
     setAxis({ start: y_start, stop: y_stop, step: y_step });
   }, [status.band, status.link, source]);
@@ -203,7 +218,12 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
         <Grid item md={12}>
           <Card>
             <CardContent>
-              <GanttChart traces={traces} startDate={startDate} axis={axis} />
+              <GanttChart
+                traces={traces}
+                startDate={startDate}
+                axis={axis}
+                annots={annots}
+              />
             </CardContent>
           </Card>
         </Grid>

@@ -52,6 +52,7 @@
     "immutable": "^4.0.0-rc.12",
     "jss": "^10.3.0",
     "lodash": "^4.17.19",
+    "moment": "^2.29.1",
     "notistack": "^0.9.17",
     "nprogress": "^0.2.0",
     "plotly.js": "^1.58.4",

@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import PropTypes from 'prop-types';
 import Plot from 'react-plotly.js';
 import useWindowSize from 'src/hooks/useWindowSize';
-import formatDate from 'src/utils/formatDate';
+import { formatDate } from 'src/utils/formatDate';
 
 interface Axis {
   start: number;
@@ -19,7 +19,7 @@ interface GanttChartsProps {
 
 const GanttChart: FC<GanttChartsProps> = ({ traces, startDate, axis }) => {
   const size = useWindowSize();
-  
+
   return (
     <Plot
       data={traces}

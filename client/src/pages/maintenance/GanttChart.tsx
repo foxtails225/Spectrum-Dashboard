@@ -15,7 +15,7 @@ import {
 } from '@material-ui/core';
 import { colorSet } from './colors';
 import useWindowSize from 'src/hooks/useWindowSize';
-import formatDate from 'src/utils/formatDate';
+import { formatDate } from 'src/utils/formatDate';
 
 interface GanttChartProps {
   className?: string;
@@ -169,7 +169,7 @@ const GanttChart: FC<GanttChartProps> = ({ scope }) => {
     setStartDate(x_start);
     setYAxis({ y_start: y_start, y_stop: y_stop, y_step: y_step });
   }, [scope, source]);
-  
+
   return (
     <>
       <Grid container alignItems="center" justify="center" spacing={3}>
