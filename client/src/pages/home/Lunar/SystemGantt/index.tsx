@@ -30,7 +30,6 @@ interface Status {
 const columns = [
   { id: 'no', name: 'no' },
   { id: 'System', name: 'system' },
-  { id: 'Chart_Type', name: 'band' },
   { id: 'Link_Type', name: 'link type' },
   { id: 'SFreq_GHz', name: 'min freq (ghz)' },
   { id: 'EFreq_GHz', name: 'max freq (ghz)' },
@@ -64,6 +63,8 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
   const classes = useStyles();
 
   useEffect(() => {
+    if (status.band === 'none') return;
+
     let sheetList: Object = {};
     let req = new XMLHttpRequest();
     req.open('GET', SYSTEMS_FILE2, true);
@@ -85,11 +86,8 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
         });
         sheetList[item] = worksheetList;
       });
-
       sheetList[Object.keys(sheetList)[0]].forEach(item => {
-        item['data'] = sheetList[Object.keys(sheetList)[1]].filter(
-          el => el.Chart_Type === status.band
-        );
+        item['data'] = sheetList[status.band];
       });
       setSource(sheetList[Object.keys(sheetList)[0]]);
     };
@@ -144,7 +142,7 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
                 isLegend = false;
               }
             });
-            
+
             let trace = {
               name: count + '. ' + dt.System,
               x: [formatDate(dt.SDate, 0), formatDate(dt.EDate, 0)],

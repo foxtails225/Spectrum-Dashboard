@@ -30,7 +30,6 @@ const BandMenus: FC<BandMenusProps> = ({ className, status, onChange }) => {
   const classes = useStyles();
 
   useEffect(() => {
-    let result: string[] = [];
     let req = new XMLHttpRequest();
     req.open('GET', SYSTEMS_FILE2, true);
     req.responseType = 'arraybuffer';
@@ -38,13 +37,8 @@ const BandMenus: FC<BandMenusProps> = ({ className, status, onChange }) => {
     req.onload = (e: ProgressEvent<EventTarget>) => {
       const data = new Uint8Array(req.response);
       const workbook = xlsx.read(data, { type: 'array' });
-      const sdata = workbook.Sheets[workbook.SheetNames[1]];
-      const worksheet: any = xlsx.utils.sheet_to_json(sdata, { header: 1 });
-
-      worksheet.forEach((el: any, index) => {
-        index > 0 && !result.includes(el[1]) && result.push(el[1]);
-      });
-      setBands(result);
+      workbook.SheetNames.shift()
+      setBands(workbook.SheetNames);
     };
 
     req.send();

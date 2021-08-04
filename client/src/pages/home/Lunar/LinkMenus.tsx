@@ -39,13 +39,11 @@ const LinkMenus: FC<SystemMenusProps> = ({ className, status, onChange }) => {
     req.onload = function(e) {
       const data = new Uint8Array(req.response);
       const workbook = xlsx.read(data, { type: 'array' });
-      const sdata = workbook.Sheets[workbook.SheetNames[1]];
+      const sdata = workbook.Sheets[status.band];
       const worksheet: any = xlsx.utils.sheet_to_json(sdata, { header: 1 });
 
       worksheet.forEach((el: Array<any>, index: number) => {
-        if (el[1] === status.band) {
-          index > 0 && !result.includes(el[2]) && result.push(el[2]);
-        }
+        index > 0 && !result.includes(el[1]) && result.push(el[1]);
       });
       setLinks(result);
     };

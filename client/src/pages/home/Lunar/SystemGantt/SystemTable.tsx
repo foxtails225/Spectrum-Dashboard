@@ -99,10 +99,7 @@ const SystemTable: FC<SystemTableProps> = ({ rows, columns }) => {
         </TableHead>
         <TableBody>
           {results.map((row, index) => (
-            <StyledTableRow
-              hover
-              key={`${row.Chart_Type.split(' ').join('_')}_${index}`}
-            >
+            <StyledTableRow hover key={index}>
               {columns.map((column, idx) => (
                 <TableCell key={column.id} align="center">
                   {renderColumn(column.id, row, idx, index)}
