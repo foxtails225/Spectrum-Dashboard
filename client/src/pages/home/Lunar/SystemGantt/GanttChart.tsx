@@ -30,7 +30,7 @@ const GanttChart: FC<GanttChartsProps> = ({
     <Plot
       data={traces}
       layout={{
-        width: size.width * 0.7,
+        width: size.width * 0.85,
         annotations: annots,
         xaxis: {
           title: '',

@@ -101,8 +101,8 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
       y_step = 0,
       y_stop = 0;
     let traceList = [],
-      count = 1,
-      annotList = [];
+      annotList = [],
+      rowData = [];
 
     source.forEach((item: Chart) => {
       let preItem = item;
@@ -139,12 +139,11 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
             item.data.forEach((d, idx) => {
               if (idx < index && d.System === dt.System) {
                 index = idx;
-                isLegend = false;
               }
             });
 
             let trace = {
-              name: count + '. ' + dt.System,
+              name: dt.Id + '. ' + dt.System,
               x: [formatDate(dt.SDate, 0), formatDate(dt.EDate, 0)],
               y: [y_point, y_point],
               mode: 'lines',
@@ -158,13 +157,12 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
             const annot = {
               x: getMiddleDate(dt.SDate, dt.EDate),
               y: y_point,
-              text: count,
+              text: dt.Id,
               showarrow: false,
               font: { color: 'black', size: 14 }
             };
             annotList.push(annot);
             traceList.push(trace);
-            count++;
           });
         } else {
           let trace = {
@@ -191,15 +189,29 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
           };
           traceList.push(trace);
         }
-        setRows(item.data);
+        const isValid = rows.length > 1 || rows.every(item => Boolean(item));
+        rowData = isValid ? item.data : [];
       }
     });
 
-    setTraces(traceList);
-    setAnnots(annotList);
+    const isValid =
+      rowData.length > 1 ||
+      rowData.every(item => Object.keys(item).every(key => Boolean(item[key])));
+
+    if (isValid) {
+      setRows(rowData);
+      setTraces(traceList);
+      setAnnots(annotList);
+    } else {
+      setRows([]);
+      setTraces([]);
+      setAnnots([]);
+    }
+
     setStartDate(x_start);
     setAxis({ start: y_start, stop: y_stop, step: y_step });
-  }, [status.band, status.link, source]);
+    // eslint-disable-next-line
+  }, [status, source]);
 
   return (
     <>

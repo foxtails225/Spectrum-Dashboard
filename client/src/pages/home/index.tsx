@@ -62,7 +62,7 @@ const HomeView: FC = () => {
 
   return (
     <div className={classes.root}>
-      <Container component="main" maxWidth="lg">
+      <Container component="main" maxWidth="xl">
         <CssBaseline />
         <Card className={classes.card}>
           <CardHeader

@@ -43,7 +43,8 @@ const LinkMenus: FC<SystemMenusProps> = ({ className, status, onChange }) => {
       const worksheet: any = xlsx.utils.sheet_to_json(sdata, { header: 1 });
 
       worksheet.forEach((el: Array<any>, index: number) => {
-        index > 0 && !result.includes(el[1]) && result.push(el[1]);
+        // @ts-ignore
+        index > 0 && !result.includes(el[2]) && result.push(el[2]);
       });
       setLinks(result);
     };
