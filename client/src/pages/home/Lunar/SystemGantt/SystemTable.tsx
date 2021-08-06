@@ -61,7 +61,7 @@ const SystemTable: FC<SystemTableProps> = ({ rows, columns }) => {
           return row[name].toFixed(7);
         case 'SDate':
         case 'EDate':
-          return formatDate(row[name], 0);
+          return formatDate(row[name], 0, 'table');
         default:
           return row[name];
       }

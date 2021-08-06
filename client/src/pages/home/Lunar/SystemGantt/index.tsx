@@ -96,110 +96,94 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
   }, [status.band]);
 
   useEffect(() => {
-    let x_start = 0,
-      y_start = 0,
-      y_step = 0,
-      y_stop = 0;
+    let xStart = 0,
+      yStart = 0,
+      yStep = 0,
+      yStop = 0;
     let traceList = [],
       annotList = [],
-      rowData = [];
+      data = [];
 
     source.forEach((item: Chart) => {
-      let preItem = item;
+      if (item.Chart_Type !== status.band) return;
 
-      if (item.Chart_Type === status.band) {
-        if (Object.keys(item).includes('data') && item.data.length > 0) {
-          let idx = item.data.map(dt => dt.Link_Type).indexOf(status.link);
-          item.data.splice(
-            item.data.length - 1,
-            0,
-            item.data.splice(idx, 1)[0]
-          );
-          x_start = item.data[0].SDate;
-        } else {
-          x_start = item.X_Axis_Start;
-        }
+      data = item.data.filter(el => el.Link_Type === status.link);
+      xStart = item.X_Axis_Start;
+      yStep = item.Y_Axis_Step_Size;
+      yStart = item.Y_Axis_Start;
+      yStop = item.Y_Axis_Stop;
 
-        y_step = item.Y_Axis_Step_Size;
-        y_start = item.Y_Axis_Start;
-        y_stop = item.Y_Axis_Stop;
+      if (data.length > 0) {
+        xStart = data[0].SDate;
 
-        if (Object.keys(preItem).includes('data') && preItem.data.length > 0) {
-          item.data.forEach((dt, index) => {
-            let item_date = new Date(dt.SDate);
-            let c_date = new Date(x_start);
-            let y_point =
-              dt.SFreq_GHz + Math.abs(dt.SFreq_GHz - dt.EFreq_GHz) / 2;
-            let isLegend = true;
+        data.forEach((dt, index) => {
+          const item_date = new Date(dt.SDate);
+          const c_date = new Date(xStart);
+          const y_point =
+            dt.SFreq_GHz + Math.abs(dt.SFreq_GHz - dt.EFreq_GHz) / 2;
 
-            if (item_date < c_date) {
-              x_start = dt.SDate;
+          if (item_date < c_date) xStart = dt.SDate;
+          data.forEach((d, idx) => {
+            if (idx < index && d.System === dt.System) {
+              index = idx;
             }
-
-            item.data.forEach((d, idx) => {
-              if (idx < index && d.System === dt.System) {
-                index = idx;
-              }
-            });
-
-            let trace = {
-              name: dt.Id + '. ' + dt.System,
-              x: [formatDate(dt.SDate, 0), formatDate(dt.EDate, 0)],
-              y: [y_point, y_point],
-              mode: 'lines',
-              line: {
-                width:
-                  (Math.abs(dt.SFreq_GHz - dt.EFreq_GHz) / (y_step * 10)) * 340,
-                color: colorSet[index % colorSet.length]
-              },
-              showlegend: isLegend
-            };
-            const annot = {
-              x: getMiddleDate(dt.SDate, dt.EDate),
-              y: y_point,
-              text: dt.Id,
-              showarrow: false,
-              font: { color: 'black', size: 14 }
-            };
-            annotList.push(annot);
-            traceList.push(trace);
           });
-        } else {
-          let trace = {
-            name: '',
-            x: [x_start, x_start + 10],
-            y: [y_start, y_start],
+
+          const trace = {
+            name: dt.Id + '. ' + dt.System,
+            x: [formatDate(dt.SDate, 0), formatDate(dt.EDate, 0)],
+            y: [y_point, y_point],
+            showlegend: true,
             mode: 'lines',
             line: {
-              width: (Math.abs(y_start - y_stop) / (y_step * 10)) * 340,
-              color: 'transparent'
-            },
-            showlegend: false,
-            marker: {
-              size: 12,
-              shape: [
-                'line-ew',
-                'diamond-open',
-                'line-ew',
-                'line-ew',
-                'diamond-open',
-                'line-ew'
-              ]
+              width:
+                (Math.abs(dt.SFreq_GHz - dt.EFreq_GHz) / (yStep * 10)) * 340,
+              color: colorSet[index % colorSet.length]
             }
           };
+          const annot = {
+            x: getMiddleDate(dt.SDate, dt.EDate),
+            y: y_point,
+            text: dt.Id,
+            showarrow: false,
+            font: { color: 'black', size: 14 }
+          };
+          annotList.push(annot);
           traceList.push(trace);
-        }
-        const isValid = rows.length > 1 || rows.every(item => Boolean(item));
-        rowData = isValid ? item.data : [];
+        });
+      } else {
+        const trace = {
+          name: '',
+          x: [xStart, xStart + 10],
+          y: [yStart, yStart],
+          mode: 'lines',
+          line: {
+            width: (Math.abs(yStart - yStop) / (yStep * 10)) * 340,
+            color: 'transparent'
+          },
+          showlegend: false,
+          marker: {
+            size: 12,
+            shape: [
+              'line-ew',
+              'diamond-open',
+              'line-ew',
+              'line-ew',
+              'diamond-open',
+              'line-ew'
+            ]
+          }
+        };
+        traceList.push(trace);
       }
     });
 
     const isValid =
-      rowData.length > 1 ||
-      rowData.every(item => Object.keys(item).every(key => Boolean(item[key])));
+      data.length > 1 ||
+      data.every(item => Object.keys(item).every(key => Boolean(item[key])));
 
     if (isValid) {
-      setRows(rowData);
+      setRows(data);
       setTraces(traceList);
       setAnnots(annotList);
     } else {
@@ -208,42 +192,43 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
       setAnnots([]);
     }
 
-    setStartDate(x_start);
-    setAxis({ start: y_start, stop: y_stop, step: y_step });
+    setStartDate(xStart);
+    setAxis({ start: yStart, stop: yStop, step: yStep });
     // eslint-disable-next-line
-  }, [status, source]);
+  }, [status.link, source]);
 
   return (
-    <>
-      <Grid container alignItems="center" justify="center" spacing={3}>
-        <Grid item md={12} className={classes.title}>
-          <Typography variant="h6" component="strong">
-            Frequency-Bandwidth-Time (FBT) View
-          </Typography>
-        </Grid>
+    <Grid container alignItems="center" justify="center" spacing={3}>
+      <Grid item md={12} className={classes.title}>
+        <Typography variant="h6" component="strong">
+          Frequency-Bandwidth-Time (FBT) View
+        </Typography>
       </Grid>
-      <Grid container alignItems="center" justify="center" spacing={3}>
-        <Grid item md={12}>
-          <Card>
-            <CardContent>
-              <GanttChart
-                traces={traces}
-                startDate={startDate}
-                axis={axis}
-                annots={annots}
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item md={12}>
-          <Card>
-            <CardContent>
-              <SystemTable rows={rows} columns={columns} />
-            </CardContent>
-          </Card>
-        </Grid>
+      <Grid item md={12}>
+        <Card>
+          <CardContent>
+            <GanttChart
+              traces={traces}
+              startDate={startDate}
+              axis={axis}
+              annots={annots}
+            />
+          </CardContent>
+        </Card>
       </Grid>
-    </>
+      <Grid item md={12} className={classes.title}>
+        <Typography variant="h6" component="strong">
+          Data View
+        </Typography>
+      </Grid>
+      <Grid item md={12}>
+        <Card>
+          <CardContent>
+            <SystemTable rows={rows} columns={columns} />
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
   );
 };
 

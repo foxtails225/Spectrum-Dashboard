@@ -1,4 +1,4 @@
-export const formatDate = (value: number, delta: number) => {
+export const formatDate = (value: number, delta: number, type?: string) => {
   if (!value) return '';
 
   let sDate = Math.floor(value - 25569) * 86400;
@@ -8,8 +8,9 @@ export const formatDate = (value: number, delta: number) => {
   let yyyy = lDate.getFullYear();
   let mon = lDate.getMonth() + 1;
   let mm = mon < 10 ? '0' + mon : mon;
-
-  return yyyy + delta + '-' + mm + '-' + dd;
+  return type === 'table'
+    ? mm + '-' + dd + '-' + yyyy
+    : yyyy + delta + '-' + mm + '-' + dd;
 };
 
 export const getMiddleDate = (start: number, end: number) => {
