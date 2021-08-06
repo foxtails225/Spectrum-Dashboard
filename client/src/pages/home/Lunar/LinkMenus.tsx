@@ -74,6 +74,7 @@ const LinkMenus: FC<SystemMenusProps> = ({ className, status, onChange }) => {
       <MenuItem value="none" className={classes.default} disabled>
         Select Link Type
       </MenuItem>
+      <MenuItem value="all">All</MenuItem>
       {links.map((item: string) => (
         <MenuItem value={item} key={item}>
           {item}

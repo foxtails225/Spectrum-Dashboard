@@ -107,7 +107,10 @@ const SystemGantt: FC<SystemGanttProps> = ({ status }) => {
     source.forEach((item: Chart) => {
       if (item.Chart_Type !== status.band) return;
 
-      data = item.data.filter(el => el.Link_Type === status.link);
+      data =
+        status.link === 'all'
+          ? item.data
+          : item.data.filter(el => el.Link_Type === status.link);
       xStart = item.X_Axis_Start;
       yStep = item.Y_Axis_Step_Size;
       yStart = item.Y_Axis_Start;
