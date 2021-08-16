@@ -21,7 +21,7 @@ import Lunar from './Lunar';
 
 const tabs = [
   { value: 'commercial', label: 'Commercial' },
-  { value: 'lunar', label: 'Lunar' }
+  { value: 'lunar', label: 'Lunar' },
 ];
 
 const useStyles = makeStyles((theme: Theme) => ({
@@ -71,7 +71,7 @@ const HomeView: FC = () => {
               <Typography component="header" variant="h5">
                 {currentTab === 'commercial'
                   ? 'Commercial Operational Spectrum Snapshot'
-                  : 'Lunar Operational Spectrum Viewer'}
+                  : 'Spectrum Viewer'}
               </Typography>
             }
           />

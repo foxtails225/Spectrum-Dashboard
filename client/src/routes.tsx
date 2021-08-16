@@ -50,6 +50,11 @@ const routes: Routes = [
   },
   {
     exact: true,
+    path: '/dark-lunar',
+    component: lazy(() => import('src/pages/dashboard'))
+  },
+  {
+    exact: true,
     path: '/',
     component: HomeView
   },
